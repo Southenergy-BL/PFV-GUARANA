@@ -16,7 +16,7 @@ COLORES_CENTRALES = {
 }
 
 POTENCIA_INSTALADA = {
-    'PMGD PFV GUARANA': 1.109,
+    'PMGD PFV GUARANA': 3,
 }
 
 CONFIG_PLOTLY = {'separators': ',.', 'displayModeBar': False}
