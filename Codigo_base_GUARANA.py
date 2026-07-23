@@ -94,7 +94,6 @@ RUTA_CMG = os.path.join("datos", "CMg_Multibarra_Con_Promedios.xlsx")
 try:
     df_completo = cargar_y_procesar_datos(RUTA_GEN)
     hay_datos_cmg = False
-    dias_periodo = len(df_completo['Fecha'].unique())
     
     try:
         df_precios = cargar_cmg(RUTA_CMG)
@@ -103,6 +102,37 @@ try:
         hay_datos_cmg = True
     except Exception as e:
         st.sidebar.warning(f"Costos Marginales no cargados (verifica el archivo en la carpeta 'datos'): {e}")
+
+    # --- FILTRO DE FECHAS EN SIDEBAR ---
+    st.sidebar.markdown("### ⚙️ Filtros de Operación")
+    
+    # 1. Definir límites para el calendario
+    fecha_min = df_completo['Fecha'].min().date()
+    fecha_max = df_completo['Fecha'].max().date()
+
+    # 2. Widget de rango de fechas
+    rango_fechas = st.sidebar.date_input(
+        "Seleccionar Rango de Fechas:",
+        value=(fecha_min, fecha_max),
+        min_value=fecha_min,
+        max_value=fecha_max
+    )
+
+    # 3. Validación de selección completa
+    if len(rango_fechas) != 2:
+        st.warning("⏳ Por favor, selecciona una fecha de inicio y una fecha de fin en el calendario.")
+        st.stop()
+
+    fecha_inicio, fecha_fin = rango_fechas
+
+    # 4. Filtrar el dataframe principal
+    df_completo = df_completo[
+        (df_completo['Fecha'].dt.date >= fecha_inicio) &
+        (df_completo['Fecha'].dt.date <= fecha_fin)
+    ].copy()
+
+    # 5. Recalcular días del periodo DESPUÉS del filtro
+    dias_periodo = len(df_completo['Fecha'].unique())
     
     tab_op, tab_econ, tab_kpi, tab_heat = st.tabs([
         "📊 Operación Diaria", 
